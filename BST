@@ -1,0 +1,150 @@
+#include <iostream>
+using namespace std;
+
+class BinarySearchTree {
+    struct Node {
+        int key;
+        Node *left, *right;
+        Node(int item) : key(item), left(nullptr), right(nullptr) {}
+    };
+
+    Node *root;
+
+    Node* insertRec(Node *root, int key) {
+        if (root == nullptr) {
+            return new Node(key);
+        }
+
+        if (key < root->key) {
+            root->left = insertRec(root->left, key);
+        } else if (key > root->key) {
+            root->right = insertRec(root->right, key);
+        }
+
+        return root;
+    }
+
+    Node* searchRec(Node *root, int key) {
+        if (root == nullptr || root->key == key) {
+            return root;
+        }
+
+        if (root->key > key) {
+            return searchRec(root->left, key);
+        }
+
+        return searchRec(root->right, key);
+    }
+
+    Node* deleteRec(Node *root, int key) {
+        if (root == nullptr) return root;
+
+        if (key < root->key) {
+            root->left = deleteRec(root->left, key);
+        } else if (key > root->key) {
+            root->right = deleteRec(root->right, key);
+        } else {
+            if (root->left == nullptr) return root->right;
+            if (root->right == nullptr) return root->left;
+
+            root->key = minValue(root->right);
+            root->right = deleteRec(root->right, root->key);
+        }
+
+        return root;
+    }
+
+    int minValue(Node *root) {
+        int minValue = root->key;
+        while (root->left != nullptr) {
+            minValue = root->left->key;
+            root = root->left;
+        }
+        return minValue;
+    }
+
+    void inorderRec(Node *root) {
+        if (root != nullptr) {
+            inorderRec(root->left);
+            cout << root->key << " ";
+            inorderRec(root->right);
+        }
+    }
+
+    void preorderRec(Node *root) {
+        if (root != nullptr) {
+            cout << root->key << " ";
+            preorderRec(root->left);
+            preorderRec(root->right);
+        }
+    }
+
+    void postorderRec(Node *root) {
+        if (root != nullptr) {
+            postorderRec(root->left);
+            postorderRec(root->right);
+            cout << root->key << " ";
+        }
+    }
+
+public:
+    BinarySearchTree() : root(nullptr) {}
+
+    void insert(int key) {
+        root = insertRec(root, key);
+    }
+
+    bool search(int key) {
+        return searchRec(root, key) != nullptr;
+    }
+
+    void deleteKey(int key) {
+        root = deleteRec(root, key);
+    }
+
+    void inorder() {
+        inorderRec(root);
+        cout << endl;
+    }
+
+    void preorder() {
+        preorderRec(root);
+        cout << endl;
+    }
+
+    void postorder() {
+        postorderRec(root);
+        cout << endl;
+    }
+};
+
+int main() {
+    BinarySearchTree tree;
+
+    tree.insert(50);
+    tree.insert(30);
+    tree.insert(20);
+    tree.insert(40);
+    tree.insert(70);
+    tree.insert(60);
+    tree.insert(80);
+
+    cout << "In-order traversal:" << endl;
+    tree.inorder();
+
+    cout << "Pre-order traversal:" << endl;
+    tree.preorder();
+
+    cout << "Post-order traversal:" << endl;
+    tree.postorder();
+
+    int keyToSearch = 60;
+    cout << "Search for " + to_string(keyToSearch) + ": " << tree.search(keyToSearch) << endl;
+
+    int keyToDelete = 20;
+    tree.deleteKey(keyToDelete);
+    cout << "In-order traversal after deleting " << keyToDelete << ":" << endl;
+    tree.inorder();
+
+    return 0;
+}
